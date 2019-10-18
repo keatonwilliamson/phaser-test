@@ -81,6 +81,28 @@ var config = {
 
 var absol;
 var cursors;
+const animationDirection = {
+    absol: "",
+}
+const animationDirectionHandler = {
+    set: function (obj, prop, value) {
+        if (obj[prop] === value) {
+        }
+        else if (value === "stop"){
+            obj[prop] = value;
+            console.log("stop maaan")
+            absol.anims.stop();
+        }
+        else {
+            obj[prop] = value;
+           console.log(Math.abs(absol.body.velocity.x), Math.abs(absol.body.velocity.y)) 
+            absol.anims.play(`${value}`);
+        }
+        return true;
+    }
+}
+
+const animationDirectionProxy = new Proxy(animationDirection, animationDirectionHandler);
 
 var game = new Phaser.Game(config);
 
@@ -88,25 +110,51 @@ function preload() {
 
 
     // this.load.spritesheet('sheet', 'assets/mega-absol.png', 64, 64);
-    this.load.spritesheet('absol-sheet', 'assets/mega-absol.png', { frameWidth: 64, frameHeight: 64 } );
-    // this.load.image('absol', 'assets/mega-absol.png');
+    this.load.spritesheet('absol-sheet', 'assets/mega-absol.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('grass-map', 'assets/grass-map.jpeg');
 }
 
 function create() {
 
-    this.anims.create({
-        key: 'walk',
-        frames: this.anims.generateFrameNumbers('absol-sheet', { start: 0, end: 4, first: 4 }),
-        frameRate: 10
-    });
 
     // var boom = this.add.sprite(400, 300, 'boom');
 
 
     absol = this.matter.add.sprite(100, 450, 'absol-sheet', 0);
+    absol.scaleX = 2.5
+    absol.scaleY = 2.5
+    grassMap = this.matter.add.image(100, 450, 'grass-map', 0);
+
+
+    this.anims.create({
+        key: 'walk-down',
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers('absol-sheet', { start: 0, end: 3, first: 0 }),
+        frameRate: 7
+    });
+    this.anims.create({
+        key: 'walk-left',
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers('absol-sheet', { start: 4, end: 7, first: 4 }),
+        frameRate: 7
+    });
+    this.anims.create({
+        key: 'walk-right',
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers('absol-sheet', { start: 8, end: 11, first: 8 }),
+        frameRate: 7
+    });
+    this.anims.create({
+        key: 'walk-up',
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers('absol-sheet', { start: 12, end: 15, first: 12 }),
+        frameRate: 7
+    });
+
+
 
     console.log(absol);
-    absol.anims.play('walk');
+
 
     // this.anims.create({
     //     key: 'walk',
@@ -120,8 +168,8 @@ function create() {
     // absol = this.matter.add.image(400, 300, 'absol');
     absol.setFixedRotation();
     absol.setAngle(0);
-    absol.setFrictionAir(0.05);
-    absol.setMass(10);
+    absol.setFrictionAir(0.08);
+    absol.setMass(15);
 
     this.matter.world.setBounds(0, 0, 1200, 960);
 
@@ -136,32 +184,25 @@ function create() {
 }
 
 function update() {
-    // absol.thrustBack(0.1);
-    // this.input.on('pointerdown', function (pointer) {
-    //         console.log(this.input)
-
-    // })
-    
+    if(Math.abs(absol.body.velocity.x) < 1 && Math.abs(absol.body.velocity.y) < 1) {
+        animationDirectionProxy.absol = "stop"
+    }
     if (cursors.left.isDown) {
-        absol.thrustBack(0.1);
-        console.log(absol.body.velocity)
-        console.log(absol.anims)
+        animationDirectionProxy.absol = "walk-left"
+        absol.thrustBack(0.06);
     }
     else if (cursors.right.isDown) {
-        absol.thrust(0.1);
-        console.log("yeah")
-        console.log(absol.body.velocity)
+        absol.thrust(0.06);
+        animationDirectionProxy.absol = "walk-right"
     }
 
     if (cursors.up.isDown) {
-        absol.thrustLeft(0.1);
-        console.log("yeah")
-        console.log(absol.body.velocity)
+        absol.thrustLeft(0.06);
+        animationDirectionProxy.absol = "walk-up"
     }
     else if (cursors.down.isDown) {
-        absol.thrustRight(0.1);
-        console.log("yeah")
-        console.log(absol.body.velocity)
+        absol.thrustRight(0.06);
+        animationDirectionProxy.absol = "walk-down"
     }
 }
 
