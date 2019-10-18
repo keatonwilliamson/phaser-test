@@ -94,7 +94,28 @@ function preload() {
 
 function create() {
 
+    this.anims.create({
+        key: 'walk',
+        frames: this.anims.generateFrameNumbers('absol-sheet', { start: 0, end: 4, first: 4 }),
+        frameRate: 10
+    });
+
+    // var boom = this.add.sprite(400, 300, 'boom');
+
+
     absol = this.matter.add.sprite(100, 450, 'absol-sheet', 0);
+
+    console.log(absol);
+    absol.anims.play('walk');
+
+    // this.anims.create({
+    //     key: 'walk',
+    //     repeat: -1,
+    //     frames: this.anims.generateFrameNames('absol', {start: 0, end: 3})
+    // })
+    // absol.play('walk')
+    // absol.anims.add('down', [0, 1, 2, 3], 10, true);
+    // mysprite.animations.play('down');
 
     // absol = this.matter.add.image(400, 300, 'absol');
     absol.setFixedRotation();
@@ -124,6 +145,7 @@ function update() {
     if (cursors.left.isDown) {
         absol.thrustBack(0.1);
         console.log(absol.body.velocity)
+        console.log(absol.anims)
     }
     else if (cursors.right.isDown) {
         absol.thrust(0.1);
