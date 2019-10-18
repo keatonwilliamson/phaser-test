@@ -2,6 +2,10 @@
  *  This example show how to load complex shapes created with PhysicsEditor (https://www.codeandweb.com/physicseditor)
  */
 
+let playC = false
+let playD = false
+let playF = false
+let playG = false
 
 var config = {
     type: Phaser.AUTO,
@@ -25,7 +29,48 @@ var config = {
     },
 };
 
+var midi, data;
+// start talking to MIDI controller
+if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({
+        sysex: false
+    }).then(onMIDISuccess, onMIDIFailure);
+} else {
+    console.warn("No MIDI support in your browser")
+}
 
+// on success
+function onMIDISuccess(midiData) {
+    console.log("midi works")
+    // this is all our MIDI data
+    midi = midiData;
+    var allInputs = midi.inputs.values();
+    // loop over all available inputs and listen for any MIDI input
+    for (var input = allInputs.next(); input && !input.done; input = allInputs.next()) {
+        // when a MIDI value is received call the onMIDIMessage function
+        input.value.onmidimessage = gotMIDImessage;
+    }
+}
+// var dataList = document.querySelector('#midi-data ul')
+
+function gotMIDImessage(messageData) {
+    console.log("data", messageData.data)
+    // if (messageData.data[0] === 144 && messageData.data[1] === 48) {
+    //     World.add(engine.world, addMM("red"));
+    //     var noteC = new Audio("mp3/music-box-c.mp3");
+    //     noteC.volume = (messageData.data[2] * (1 / 128) * pad);
+    //     noteC.play();
+    //     console.log("playc")
+
+    // } 
+}
+
+// on failure
+function onMIDIFailure() {
+    console.warn("Not recognising MIDI controller")
+}
+
+// end midi stuff
 // var game = new Phaser.Game(config);
 
 // function preload() {
