@@ -85,12 +85,18 @@ var cursors;
 var game = new Phaser.Game(config);
 
 function preload() {
-    this.load.image('absol', 'assets/mega-absol.png');
+
+
+    // this.load.spritesheet('sheet', 'assets/mega-absol.png', 64, 64);
+    this.load.spritesheet('absol-sheet', 'assets/mega-absol.png', { frameWidth: 64, frameHeight: 64 } );
+    // this.load.image('absol', 'assets/mega-absol.png');
 }
 
 function create() {
-    absol = this.matter.add.image(400, 300, 'absol');
 
+    absol = this.matter.add.sprite(100, 450, 'absol-sheet', 0);
+
+    // absol = this.matter.add.image(400, 300, 'absol');
     absol.setFixedRotation();
     absol.setAngle(0);
     absol.setFrictionAir(0.05);
