@@ -111,7 +111,8 @@ function preload() {
 
     // this.load.spritesheet('sheet', 'assets/mega-absol.png', 64, 64);
     this.load.spritesheet('absol-sheet', 'assets/mega-absol.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.image('grass-map', 'assets/grass-map.jpeg');
+    this.load.image('pallet-town', 'assets/light-grass.png');
+    this.load.image('ball', 'assets/pixel-ball.png')
 }
 
 function create() {
@@ -119,11 +120,30 @@ function create() {
 
     // var boom = this.add.sprite(400, 300, 'boom');
 
-
+    grassMap = this.add.tileSprite(600, 480, 600, 480, 'pallet-town');
+    grassMap.scaleX = 1.7
+    grassMap.scaleY = 1.7
     absol = this.matter.add.sprite(100, 450, 'absol-sheet', 0);
     absol.scaleX = 2.5
     absol.scaleY = 2.5
-    grassMap = this.matter.add.image(100, 450, 'grass-map', 0);
+    absol.setBody({
+        type: 'circle',
+        width: 128,
+        height: 128
+    });
+    ball = this.matter.add.sprite(200, 450, 'ball', 0);
+    ball.scaleX = 0.15
+    ball.scaleY = 0.15
+    ball.setBody({
+        type: 'circle',
+        width: 50,
+        height: 50
+    });
+    ball.setFrictionAir(0.01);
+    ball.setMass(1);
+    ball.setBounce(1);
+
+    // grassMap = this.matter.add.image(100, 450, 'grass-map', 0);
 
 
     this.anims.create({
@@ -153,7 +173,8 @@ function create() {
 
 
 
-    console.log(absol);
+    console.log("graaas", grassMap);
+
 
 
     // this.anims.create({
@@ -168,8 +189,8 @@ function create() {
     // absol = this.matter.add.image(400, 300, 'absol');
     absol.setFixedRotation();
     absol.setAngle(0);
-    absol.setFrictionAir(0.08);
-    absol.setMass(15);
+    absol.setFrictionAir(0.3);
+    absol.setMass(10);
 
     this.matter.world.setBounds(0, 0, 1200, 960);
 
@@ -189,19 +210,19 @@ function update() {
     }
     if (cursors.left.isDown) {
         animationDirectionProxy.absol = "walk-left"
-        absol.thrustBack(0.06);
+        absol.thrustBack(0.18);
     }
     else if (cursors.right.isDown) {
-        absol.thrust(0.06);
+        absol.thrust(0.18);
         animationDirectionProxy.absol = "walk-right"
     }
 
     if (cursors.up.isDown) {
-        absol.thrustLeft(0.06);
+        absol.thrustLeft(0.18);
         animationDirectionProxy.absol = "walk-up"
     }
     else if (cursors.down.isDown) {
-        absol.thrustRight(0.06);
+        absol.thrustRight(0.18);
         animationDirectionProxy.absol = "walk-down"
     }
 }
