@@ -94,7 +94,7 @@ function create() {
     absol.setFixedRotation();
     absol.setAngle(0);
     absol.setFrictionAir(0.05);
-    absol.setMass(30);
+    absol.setMass(10);
 
     this.matter.world.setBounds(0, 0, 1200, 960);
 
@@ -117,19 +117,23 @@ function update() {
     
     if (cursors.left.isDown) {
         absol.thrustBack(0.1);
-        console.log("yeah")
+        console.log(absol.body.velocity)
     }
     else if (cursors.right.isDown) {
         absol.thrust(0.1);
         console.log("yeah")
+        console.log(absol.body.velocity)
     }
 
     if (cursors.up.isDown) {
         absol.thrustLeft(0.1);
         console.log("yeah")
+        console.log(absol.body.velocity)
     }
     else if (cursors.down.isDown) {
         absol.thrustRight(0.1);
         console.log("yeah")
+        console.log(absol.body.velocity)
     }
 }
+
