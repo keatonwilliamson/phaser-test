@@ -1,11 +1,3 @@
-/*
- *  This example show how to load complex shapes created with PhysicsEditor (https://www.codeandweb.com/physicseditor)
- */
-
-let playC = false
-let playD = false
-let playF = false
-let playG = false
 
 var config = {
     type: Phaser.AUTO,
@@ -52,35 +44,120 @@ function onMIDISuccess(midiData) {
     }
 }
 
+let playC = false
+let playDb = false
+let playD = false
+let playEb = false
+let playE = false
+let playF = false
+let playGb = false
+let playG = false
+let playAb = false
+let playA = false
+let playBb = false
+let playB = false
+
+let allCNotes = []
+for (let i = 0; i < 11; i++) {
+    allCNotes.push(i * 12)
+}
+console.log("carraaaay", allCNotes)
+
+
+
 function gotMIDImessage(messageData) {
     console.log("data", messageData.data)
+    let notePlayed = messageData.data[1]
+    let pressNoteDown = false
+    if (messageData.data[0] === 144) {
+        pressNoteDown = true
+    }
+    else if (messageData.data[0] === 128) {
+        pressNoteDown = false
+    }
     // ------C------
-    if (messageData.data[0] === 144 && messageData.data[1] === 48) {
+    if (pressNoteDown && allCNotes.includes(notePlayed)) {
         playC = true
     }
-    if (messageData.data[0] === 128 && messageData.data[1] === 48) {
+    if (!pressNoteDown && allCNotes.includes(notePlayed)) {
         playC = false
     }
+    // ------Db------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 1)) {
+        playDb = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 1)) {
+        playDb = false
+    }
     // ------D------
-    if (messageData.data[0] === 144 && messageData.data[1] === 50) {
+    if (pressNoteDown && allCNotes.includes(notePlayed - 2)) {
         playD = true
     }
-    if (messageData.data[0] === 128 && messageData.data[1] === 50) {
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 2)) {
         playD = false
     }
+    // ------Eb------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 3)) {
+        playEb = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 3)) {
+        playEb = false
+    }
+    // ------E------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 4)) {
+        playE = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 4)) {
+        playE = false
+    }
     // ------F------
-    if (messageData.data[0] === 144 && messageData.data[1] === 53) {
+    if (pressNoteDown && allCNotes.includes(notePlayed - 5)) {
         playF = true
     }
-    if (messageData.data[0] === 128 && messageData.data[1] === 53) {
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 5)) {
         playF = false
     }
+    // ------Gb------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 6)) {
+        playGb = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 6)) {
+        playGb = false
+    }
     // ------G------
-    if (messageData.data[0] === 144 && messageData.data[1] === 55) {
+    if (pressNoteDown && allCNotes.includes(notePlayed - 7)) {
         playG = true
     }
-    if (messageData.data[0] === 128 && messageData.data[1] === 55) {
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 7)) {
         playG = false
+    }
+    // ------Ab------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 8)) {
+        playAb = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 8)) {
+        playAb = false
+    }
+    // ------A------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 9)) {
+        playA = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 9)) {
+        playA = false
+    }
+    // ------Bb------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 10)) {
+        playBb = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 10)) {
+        playBb = false
+    }
+    // ------B------
+    if (pressNoteDown && allCNotes.includes(notePlayed - 11)) {
+        playB = true
+    }
+    if (!pressNoteDown && allCNotes.includes(notePlayed - 11)) {
+        playB = false
     }
 
 }
@@ -294,21 +371,21 @@ function update() {
 
     // Midi control
 
-    if (playF) {
+    if (playC && playEb && playAb ) {
         animationDirectionProxy.absol = "walk-left"
         absol.thrustBack(0.18);
     }
-    else if (playG) {
+    else if (playDb && playGb && playBb) {
         absol.thrust(0.18);
         animationDirectionProxy.absol = "walk-right"
     }
 
-    if (playD) {
+    if (playEb && playGb && playBb) {
         absol.thrustLeft(0.18);
         animationDirectionProxy.absol = "walk-up"
     }
-    else if (playC) {
-        console.log(playC)
+    else if (playDb && playF && playAb) {
+        // console.log(playDb && playF && playAb)
         absol.thrustRight(0.18);
         animationDirectionProxy.absol = "walk-down"
     }
