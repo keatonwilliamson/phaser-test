@@ -44,29 +44,22 @@ function onMIDISuccess(midiData) {
     }
 }
 
-let playC = false
-let playDb = false
-let playD = false
-let playEb = false
-let playE = false
-let playF = false
-let playGb = false
-let playG = false
-let playAb = false
-let playA = false
-let playBb = false
-let playB = false
+// mother object
+playNote = {}
+for (let i = 0; i < 12; i++) {
+    playNote[i] = false
+}
 
+console.log("obbbjecttt", playNote)
+
+// creates an array 0, 12, 24, 36 etc..
 let allCNotes = []
 for (let i = 0; i < 11; i++) {
     allCNotes.push(i * 12)
 }
-console.log("carraaaay", allCNotes)
-
-
 
 function gotMIDImessage(messageData) {
-    console.log("data", messageData.data)
+    // console.log("data", messageData.data)
     let notePlayed = messageData.data[1]
     let pressNoteDown = false
     if (messageData.data[0] === 144) {
@@ -75,91 +68,16 @@ function gotMIDImessage(messageData) {
     else if (messageData.data[0] === 128) {
         pressNoteDown = false
     }
-    // ------C------
-    if (pressNoteDown && allCNotes.includes(notePlayed)) {
-        playC = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed)) {
-        playC = false
-    }
-    // ------Db------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 1)) {
-        playDb = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 1)) {
-        playDb = false
-    }
-    // ------D------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 2)) {
-        playD = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 2)) {
-        playD = false
-    }
-    // ------Eb------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 3)) {
-        playEb = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 3)) {
-        playEb = false
-    }
-    // ------E------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 4)) {
-        playE = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 4)) {
-        playE = false
-    }
-    // ------F------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 5)) {
-        playF = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 5)) {
-        playF = false
-    }
-    // ------Gb------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 6)) {
-        playGb = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 6)) {
-        playGb = false
-    }
-    // ------G------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 7)) {
-        playG = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 7)) {
-        playG = false
-    }
-    // ------Ab------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 8)) {
-        playAb = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 8)) {
-        playAb = false
-    }
-    // ------A------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 9)) {
-        playA = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 9)) {
-        playA = false
-    }
-    // ------Bb------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 10)) {
-        playBb = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 10)) {
-        playBb = false
-    }
-    // ------B------
-    if (pressNoteDown && allCNotes.includes(notePlayed - 11)) {
-        playB = true
-    }
-    if (!pressNoteDown && allCNotes.includes(notePlayed - 11)) {
-        playB = false
-    }
 
+    for (let i = 0; i < 12; i++) {
+        if (pressNoteDown && allCNotes.includes(notePlayed - i)) {
+            playNote[i] = true
+        }
+        if (!pressNoteDown && allCNotes.includes(notePlayed - i)) {
+            playNote[i] = false
+        }
+    }
+    console.log(playNote)
 }
 
 // on failure
@@ -364,27 +282,26 @@ function update() {
         animationDirectionProxy.absol = "walk-up"
     }
     else if (cursors.down.isDown) {
-        console.log(playC)
         absol.thrustRight(0.18);
         animationDirectionProxy.absol = "walk-down"
     }
 
     // Midi control
 
-    if (playC && playEb && playAb ) {
+    if (playNote[0] && playNote[3] && playNote[8]) {
         animationDirectionProxy.absol = "walk-left"
         absol.thrustBack(0.18);
     }
-    else if (playDb && playGb && playBb) {
+    else if (playNote[1] && playNote[6] && playNote[10]) {
         absol.thrust(0.18);
         animationDirectionProxy.absol = "walk-right"
     }
 
-    if (playEb && playGb && playBb) {
+    if (playNote[3] && playNote[6] && playNote[10]) {
         absol.thrustLeft(0.18);
         animationDirectionProxy.absol = "walk-up"
     }
-    else if (playDb && playF && playAb) {
+    else if (playNote[1] && playNote[5] && playNote[8]) {
         // console.log(playDb && playF && playAb)
         absol.thrustRight(0.18);
         animationDirectionProxy.absol = "walk-down"
