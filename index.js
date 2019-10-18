@@ -51,18 +51,38 @@ function onMIDISuccess(midiData) {
         input.value.onmidimessage = gotMIDImessage;
     }
 }
-// var dataList = document.querySelector('#midi-data ul')
 
 function gotMIDImessage(messageData) {
     console.log("data", messageData.data)
-    // if (messageData.data[0] === 144 && messageData.data[1] === 48) {
-    //     World.add(engine.world, addMM("red"));
-    //     var noteC = new Audio("mp3/music-box-c.mp3");
-    //     noteC.volume = (messageData.data[2] * (1 / 128) * pad);
-    //     noteC.play();
-    //     console.log("playc")
+    // ------C------
+    if (messageData.data[0] === 144 && messageData.data[1] === 48) {
+        playC = true
+    }
+    if (messageData.data[0] === 128 && messageData.data[1] === 48) {
+        playC = false
+    }
+    // ------D------
+    if (messageData.data[0] === 144 && messageData.data[1] === 50) {
+        playD = true
+    }
+    if (messageData.data[0] === 128 && messageData.data[1] === 50) {
+        playD = false
+    }
+    // ------F------
+    if (messageData.data[0] === 144 && messageData.data[1] === 53) {
+        playF = true
+    }
+    if (messageData.data[0] === 128 && messageData.data[1] === 53) {
+        playF = false
+    }
+    // ------G------
+    if (messageData.data[0] === 144 && messageData.data[1] === 55) {
+        playG = true
+    }
+    if (messageData.data[0] === 128 && messageData.data[1] === 55) {
+        playG = false
+    }
 
-    // } 
 }
 
 // on failure
@@ -133,14 +153,14 @@ const animationDirectionHandler = {
     set: function (obj, prop, value) {
         if (obj[prop] === value) {
         }
-        else if (value === "stop"){
+        else if (value === "stop") {
             obj[prop] = value;
-            console.log("stop maaan")
+            // console.log("stop maaan")
             absol.anims.stop();
         }
         else {
             obj[prop] = value;
-           console.log(Math.abs(absol.body.velocity.x), Math.abs(absol.body.velocity.y)) 
+            //    console.log(Math.abs(absol.body.velocity.x), Math.abs(absol.body.velocity.y)) 
             absol.anims.play(`${value}`);
         }
         return true;
@@ -195,30 +215,30 @@ function create() {
         key: 'walk-down',
         repeat: -1,
         frames: this.anims.generateFrameNumbers('absol-sheet', { start: 0, end: 3, first: 0 }),
-        frameRate: 7
+        frameRate: 10
     });
     this.anims.create({
         key: 'walk-left',
         repeat: -1,
         frames: this.anims.generateFrameNumbers('absol-sheet', { start: 4, end: 7, first: 4 }),
-        frameRate: 7
+        frameRate: 10
     });
     this.anims.create({
         key: 'walk-right',
         repeat: -1,
         frames: this.anims.generateFrameNumbers('absol-sheet', { start: 8, end: 11, first: 8 }),
-        frameRate: 7
+        frameRate: 10
     });
     this.anims.create({
         key: 'walk-up',
         repeat: -1,
         frames: this.anims.generateFrameNumbers('absol-sheet', { start: 12, end: 15, first: 12 }),
-        frameRate: 7
+        frameRate: 10
     });
 
 
 
-    console.log("graaas", grassMap);
+    // console.log("graaas", grassMap);
 
 
 
@@ -250,7 +270,7 @@ function create() {
 }
 
 function update() {
-    if(Math.abs(absol.body.velocity.x) < 1 && Math.abs(absol.body.velocity.y) < 1) {
+    if (Math.abs(absol.body.velocity.x) < 1 && Math.abs(absol.body.velocity.y) < 1) {
         animationDirectionProxy.absol = "stop"
     }
     if (cursors.left.isDown) {
@@ -267,6 +287,28 @@ function update() {
         animationDirectionProxy.absol = "walk-up"
     }
     else if (cursors.down.isDown) {
+        console.log(playC)
+        absol.thrustRight(0.18);
+        animationDirectionProxy.absol = "walk-down"
+    }
+
+    // Midi control
+
+    if (playF) {
+        animationDirectionProxy.absol = "walk-left"
+        absol.thrustBack(0.18);
+    }
+    else if (playG) {
+        absol.thrust(0.18);
+        animationDirectionProxy.absol = "walk-right"
+    }
+
+    if (playD) {
+        absol.thrustLeft(0.18);
+        animationDirectionProxy.absol = "walk-up"
+    }
+    else if (playC) {
+        console.log(playC)
         absol.thrustRight(0.18);
         animationDirectionProxy.absol = "walk-down"
     }
