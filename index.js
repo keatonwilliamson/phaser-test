@@ -45,12 +45,12 @@ function onMIDISuccess(midiData) {
 }
 
 // mother object
-playNote = {}
+playingNote = {}
 for (let i = 0; i < 12; i++) {
-    playNote[i] = false
+    playingNote[i] = false
 }
 
-console.log("obbbjecttt", playNote)
+// console.log("obbbjecttt", playingNote)
 
 // creates an array 0, 12, 24, 36 etc..
 let allCNotes = []
@@ -58,32 +58,86 @@ for (let i = 0; i < 11; i++) {
     allCNotes.push(i * 12)
 }
 
+const chordPack = {
+    // north
+    0: {
+        notes: [2, 5, 9],
+        playingChord: false
+    },
+    // northeast
+    1: {
+        notes: [0, 5, 9],
+        playingChord: false
+    },
+    // east
+    2: {
+        notes: [0, 4, 9],
+        playingChord: false
+    },
+    // southeast
+    3: {
+        notes: [11, 4, 8],
+        playingChord: false
+    },
+    // south
+    4: {
+        notes: [0, 4, 7],
+        playingChord: false
+    },
+    // southwest
+    5: {
+        notes: [11, 4, 7],
+        playingChord: false
+    },
+    // west
+    6: {
+        notes: [11, 2, 7],
+        playingChord: false
+    },
+    // northwest
+    7: {
+        notes: [10, 2, 5],
+        playingChord: false
+    }    
+}
+
 function gotMIDImessage(messageData) {
     // console.log("data", messageData.data)
     let notePlayed = messageData.data[1]
-    let pressNoteDown = false
+    let pressingNoteDown = false
     if (messageData.data[0] === 144) {
-        pressNoteDown = true
+        pressingNoteDown = true
     }
     else if (messageData.data[0] === 128) {
-        pressNoteDown = false
+        pressingNoteDown = false
     }
 
     for (let i = 0; i < 12; i++) {
-        if (pressNoteDown && allCNotes.includes(notePlayed - i)) {
-            playNote[i] = true
+        if (pressingNoteDown && allCNotes.includes(notePlayed - i)) {
+            playingNote[i] = true
         }
-        if (!pressNoteDown && allCNotes.includes(notePlayed - i)) {
-            playNote[i] = false
+        if (!pressingNoteDown && allCNotes.includes(notePlayed - i)) {
+            playingNote[i] = false
         }
     }
-    console.log(playNote)
+    // console.log(playingNote)
+    for (let i = 0; i < 8; i++) {
+        chordPack[i].playingChord = chordPack[i].notes.every(note => playingNote[note])
+    }
+    console.log(chordPack)
 }
+
+
+
+
 
 // on failure
 function onMIDIFailure() {
     console.warn("Not recognising MIDI controller")
 }
+
+
+
 
 // end midi stuff
 // var game = new Phaser.Game(config);
@@ -288,23 +342,54 @@ function update() {
 
     // Midi control
 
-    if (playNote[0] && playNote[3] && playNote[8]) {
-        animationDirectionProxy.absol = "walk-left"
-        absol.thrustBack(0.18);
+    else if (chordPack[0].playingChord) {
+        absol.thrustLeft(0.18);
+        animationDirectionProxy.absol = "walk-up"
     }
-    else if (playNote[1] && playNote[6] && playNote[10]) {
+
+    else if (chordPack[1].playingChord) {
+        absol.thrustLeft(0.18);
+        absol.thrust(0.18);
+        animationDirectionProxy.absol = "walk-up"
+    }
+
+    else if (chordPack[2].playingChord) {
         absol.thrust(0.18);
         animationDirectionProxy.absol = "walk-right"
     }
 
-    if (playNote[3] && playNote[6] && playNote[10]) {
-        absol.thrustLeft(0.18);
-        animationDirectionProxy.absol = "walk-up"
+    else if (chordPack[3].playingChord) {
+        absol.thrust(0.18);
+        absol.thrustRight(0.18);
+        animationDirectionProxy.absol = "walk-down"
     }
-    else if (playNote[1] && playNote[5] && playNote[8]) {
+
+    else if (chordPack[4].playingChord) {
         // console.log(playDb && playF && playAb)
         absol.thrustRight(0.18);
         animationDirectionProxy.absol = "walk-down"
     }
+
+    else if (chordPack[5].playingChord) {
+        // console.log(playDb && playF && playAb)
+        absol.thrustBack(0.18);
+        absol.thrustRight(0.18);
+        animationDirectionProxy.absol = "walk-down"
+    }
+
+    else if (chordPack[6].playingChord) {
+        animationDirectionProxy.absol = "walk-left"
+        absol.thrustBack(0.18);
+    }
+
+    else if (chordPack[7].playingChord) {
+        animationDirectionProxy.absol = "walk-up"
+        absol.thrustBack(0.18);
+        absol.thrustLeft(0.18);
+    }
+
+
+
+
 }
 
