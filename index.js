@@ -245,10 +245,11 @@ function create() {
     absol.scaleX = 2.5
     absol.scaleY = 2.5
     absol.setBody({
-        type: 'circle',
-        width: 128,
-        height: 128
+        type: 'polygon',
+        sides: 8,
+        radius: 50
     });
+    absol.setBounce(5)
     ball = this.matter.add.sprite(200, 450, 'ball', 0);
     ball.scaleX = 0.2
     ball.scaleY = 0.2
@@ -257,9 +258,10 @@ function create() {
         width: 50,
         height: 50
     });
-    ball.setFrictionAir(0.01);
-    ball.setMass(1);
-    ball.setBounce(1);
+    ball.setFrictionAir(0.1);
+    ball.setMass(10);
+    ball.setBounce(0.8);
+    ball.worldBounce = 0
 
     walter = this.matter.add.sprite(300, 600, 'walter', 0);
     walter.scaleX = 0.15
@@ -270,9 +272,8 @@ function create() {
         height: 100
     });
     walter.setFrictionAir(0);
-    walter.setMass(900);
+    walter.setMass(9000);
     walter.setBounce(5);
-    walter.worldBounce = 30
     walter.setVelocity(50, 50);
     walter.setFixedRotation();
     walter.setAngle(0);
@@ -307,34 +308,34 @@ function create() {
     });
 
 
-const addAnimation = (subject, sheet) => {
-    this.anims.create({
-        key: `${sheet}-walk-down`,
-        repeat: -1,
-        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 0, end: 3, first: 0 }),
-        frameRate: 10
-    });
-    this.anims.create({
-        key: `${sheet}-walk-left`,
-        repeat: -1,
-        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 4, end: 7, first: 4 }),
-        frameRate: 10
-    });
-    this.anims.create({
-        key: `${sheet}-walk-right`,
-        repeat: -1,
-        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 8, end: 11, first: 8 }),
-        frameRate: 10
-    });
-    this.anims.create({
-        key: `${sheet}-walk-up`,
-        repeat: -1,
-        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 12, end: 15, first: 12 }),
-        frameRate: 10
-    });
+    const addAnimation = (subject, sheet) => {
+        this.anims.create({
+            key: `${sheet}-walk-down`,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 0, end: 3, first: 0 }),
+            frameRate: 10
+        });
+        this.anims.create({
+            key: `${sheet}-walk-left`,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 4, end: 7, first: 4 }),
+            frameRate: 10
+        });
+        this.anims.create({
+            key: `${sheet}-walk-right`,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 8, end: 11, first: 8 }),
+            frameRate: 10
+        });
+        this.anims.create({
+            key: `${sheet}-walk-up`,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 12, end: 15, first: 12 }),
+            frameRate: 10
+        });
 
 
-}
+    }
 
 
     // console.log("graaas", grassMap);
@@ -353,8 +354,14 @@ const addAnimation = (subject, sheet) => {
     // absol = this.matter.add.image(400, 300, 'absol');
     absol.setFixedRotation();
     absol.setAngle(0);
-    absol.setFrictionAir(0.3);
+    absol.setFrictionAir(0.7);
     absol.setMass(10);
+    // absol.setFrictionStatic(0)
+    // absol.allowDrag = true
+    // absol.useDamping = true
+    // absol.acceleration = 0
+    // absol.drag = 0.5
+
 
     this.matter.world.setBounds(0, 0, 1200, 960);
 
@@ -383,77 +390,95 @@ const setMaxVelocity = (subject, max) => {
 }
 
 
-function update() {
+const resetIfOutOfBounds = (body) => {
+        if (body.x < 0 || body.y < 0 || body.x > 1200 || body.y > 960) {
+            body.setVelocity(1)
+            body.x = 600
+            body.y = 480
+        }
+}
 
+
+
+
+
+function update() {
     setMaxVelocity(walter, 20)
+    // setMaxVelocity(ball, 60)
+    // setMaxVelocity(absol, 60)
+    resetIfOutOfBounds(ball)
+    resetIfOutOfBounds(absol)
+
+    thrustValue = 0.5
 
     if (Math.abs(absol.body.velocity.x) < 1 && Math.abs(absol.body.velocity.y) < 1) {
         animationDirectionProxy.absol = "stop"
     }
     if (cursors.left.isDown) {
         animationDirectionProxy.absol = "walk-left"
-        absol.thrustBack(0.18);
+        absol.thrustBack(0.5);
     }
     else if (cursors.right.isDown) {
-        absol.thrust(0.18);
+        absol.thrust(0.5);
         animationDirectionProxy.absol = "walk-right"
     }
 
     if (cursors.up.isDown) {
-        absol.thrustLeft(0.18);
+        absol.thrustLeft(0.5);
         animationDirectionProxy.absol = "walk-up"
     }
     else if (cursors.down.isDown) {
-        absol.thrustRight(0.18);
+        absol.thrustRight(0.5);
         animationDirectionProxy.absol = "walk-down"
+        console.log(absol)
     }
 
     // Midi control
 
     else if (chordPack[0].playingChord) {
-        absol.thrustLeft(0.18);
+        absol.thrustLeft(thrustValue);
         animationDirectionProxy.absol = "walk-up"
     }
 
     else if (chordPack[1].playingChord) {
-        absol.thrustLeft(0.18);
-        absol.thrust(0.18);
+        absol.thrustLeft(thrustValue);
+        absol.thrust(thrustValue);
         animationDirectionProxy.absol = "walk-up"
     }
 
     else if (chordPack[2].playingChord) {
-        absol.thrust(0.18);
+        absol.thrust(thrustValue + 0.1);
         animationDirectionProxy.absol = "walk-right"
     }
 
     else if (chordPack[3].playingChord) {
-        absol.thrust(0.18);
-        absol.thrustRight(0.18);
+        absol.thrust(thrustValue);
+        absol.thrustRight(thrustValue);
         animationDirectionProxy.absol = "walk-down"
     }
 
     else if (chordPack[4].playingChord) {
         // console.log(playDb && playF && playAb)
-        absol.thrustRight(0.18);
+        absol.thrustRight(thrustValue);
         animationDirectionProxy.absol = "walk-down"
     }
 
     else if (chordPack[5].playingChord) {
         // console.log(playDb && playF && playAb)
-        absol.thrustBack(0.18);
-        absol.thrustRight(0.18);
+        absol.thrustBack(thrustValue);
+        absol.thrustRight(thrustValue);
         animationDirectionProxy.absol = "walk-down"
     }
 
     else if (chordPack[6].playingChord) {
         animationDirectionProxy.absol = "walk-left"
-        absol.thrustBack(0.18);
+        absol.thrustBack(thrustValue + 0.1);
     }
 
     else if (chordPack[7].playingChord) {
         animationDirectionProxy.absol = "walk-up"
-        absol.thrustBack(0.18);
-        absol.thrustLeft(0.18);
+        absol.thrustBack(thrustValue);
+        absol.thrustLeft(thrustValue);
     }
 
 
