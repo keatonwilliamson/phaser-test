@@ -98,11 +98,11 @@ const chordPack = {
     7: {
         notes: [10, 2, 5],
         playingChord: false
-    }    
+    }
 }
 
 function gotMIDImessage(messageData) {
-    // console.log("data", messageData.data)
+    console.log("data", messageData.data)
     let notePlayed = messageData.data[1]
     let pressingNoteDown = false
     if (messageData.data[0] === 144) {
@@ -218,6 +218,9 @@ const animationDirectionHandler = {
 
 const animationDirectionProxy = new Proxy(animationDirection, animationDirectionHandler);
 
+
+
+
 var game = new Phaser.Game(config);
 
 function preload() {
@@ -227,6 +230,7 @@ function preload() {
     this.load.spritesheet('absol-sheet', 'assets/mega-absol.png', { frameWidth: 64, frameHeight: 64 });
     this.load.image('pallet-town', 'assets/light-grass.png');
     this.load.image('ball', 'assets/pixel-ball.png')
+    this.load.image('walter', 'assets/walter.png')
 }
 
 function create() {
@@ -246,8 +250,8 @@ function create() {
         height: 128
     });
     ball = this.matter.add.sprite(200, 450, 'ball', 0);
-    ball.scaleX = 0.15
-    ball.scaleY = 0.15
+    ball.scaleX = 0.2
+    ball.scaleY = 0.2
     ball.setBody({
         type: 'circle',
         width: 50,
@@ -256,6 +260,23 @@ function create() {
     ball.setFrictionAir(0.01);
     ball.setMass(1);
     ball.setBounce(1);
+
+    walter = this.matter.add.sprite(300, 600, 'walter', 0);
+    walter.scaleX = 0.15
+    walter.scaleY = 0.15
+    walter.setBody({
+        type: 'circle',
+        width: 100,
+        height: 100
+    });
+    walter.setFrictionAir(0);
+    walter.setMass(900);
+    walter.setBounce(5);
+    walter.worldBounce = 30
+    walter.setVelocity(50, 50);
+    walter.setFixedRotation();
+    walter.setAngle(0);
+    // walter.setVelocity(Math.min(5, Math.abs(absol.body.velocity.x)));
 
     // grassMap = this.matter.add.image(100, 450, 'grass-map', 0);
 
@@ -285,6 +306,35 @@ function create() {
         frameRate: 10
     });
 
+
+const addAnimation = (subject, sheet) => {
+    this.anims.create({
+        key: `${sheet}-walk-down`,
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 0, end: 3, first: 0 }),
+        frameRate: 10
+    });
+    this.anims.create({
+        key: `${sheet}-walk-left`,
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 4, end: 7, first: 4 }),
+        frameRate: 10
+    });
+    this.anims.create({
+        key: `${sheet}-walk-right`,
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 8, end: 11, first: 8 }),
+        frameRate: 10
+    });
+    this.anims.create({
+        key: `${sheet}-walk-up`,
+        repeat: -1,
+        frames: this.anims.generateFrameNumbers(`${sheet}`, { start: 12, end: 15, first: 12 }),
+        frameRate: 10
+    });
+
+
+}
 
 
     // console.log("graaas", grassMap);
@@ -317,8 +367,26 @@ function create() {
     // }, this);
 
 }
+const setMaxVelocity = (subject, max) => {
+    if (subject.body.velocity.x < -max) {
+        subject.setVelocityX(-max);
+    }
+    if (subject.body.velocity.x > max) {
+        subject.setVelocityX(max);
+    }
+    if (subject.body.velocity.y < -max) {
+        walter.setVelocityY(-max);
+    }
+    if (subject.body.velocity.y > max) {
+        subject.setVelocityY(max);
+    }
+}
+
 
 function update() {
+
+    setMaxVelocity(walter, 20)
+
     if (Math.abs(absol.body.velocity.x) < 1 && Math.abs(absol.body.velocity.y) < 1) {
         animationDirectionProxy.absol = "stop"
     }
