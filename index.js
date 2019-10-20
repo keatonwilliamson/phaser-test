@@ -101,6 +101,8 @@ const chordPack = {
     }
 }
 
+let playerIsKicking;
+
 function gotMIDImessage(messageData) {
     console.log("data", messageData.data)
     let notePlayed = messageData.data[1]
@@ -112,19 +114,29 @@ function gotMIDImessage(messageData) {
         pressingNoteDown = false
     }
 
-    for (let i = 0; i < 12; i++) {
-        if (pressingNoteDown && allCNotes.includes(notePlayed - i)) {
-            playingNote[i] = true
-        }
-        if (!pressingNoteDown && allCNotes.includes(notePlayed - i)) {
-            playingNote[i] = false
+    // sustain pedal
+    if (messageData.data[0] === 176) {
+        if (messageData.data[2] === 127) { playerIsKicking = true }
+        else if (messageData.data[2] === 0) { playerIsKicking = false }
+    }
+    else {
+        for (let i = 0; i < 12; i++) {
+            if (pressingNoteDown && allCNotes.includes(notePlayed - i)) {
+                playingNote[i] = true
+            }
+            if (!pressingNoteDown && allCNotes.includes(notePlayed - i)) {
+                playingNote[i] = false
+            }
         }
     }
+
     // console.log(playingNote)
     for (let i = 0; i < 8; i++) {
         chordPack[i].playingChord = chordPack[i].notes.every(note => playingNote[note])
     }
-    console.log(chordPack)
+
+
+    // console.log(chordPack)
 }
 
 
@@ -228,7 +240,7 @@ function preload() {
 
     // this.load.spritesheet('sheet', 'assets/mega-absol.png', 64, 64);
     this.load.spritesheet('absol-sheet', 'assets/mega-absol.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.image('pallet-town', 'assets/light-grass.png');
+    this.load.image('light-grass', 'assets/light-grass.png');
     this.load.image('ball', 'assets/pixel-ball.png')
     this.load.image('walter', 'assets/walter.png')
 }
@@ -237,20 +249,21 @@ function create() {
 
 
     // var boom = this.add.sprite(400, 300, 'boom');
+    leftBounds = this.matter.add.rectangle(75, 480, 150, 960)
 
-    grassMap = this.add.tileSprite(600, 480, 600, 480, 'pallet-town');
+    grassMap = this.add.tileSprite(1000, 480, 1000, 480, 'light-grass');
     grassMap.scaleX = 1.7
     grassMap.scaleY = 1.7
-    absol = this.matter.add.sprite(100, 450, 'absol-sheet', 0);
+    absol = this.matter.add.sprite(300, 450, 'absol-sheet', 0);
     absol.scaleX = 2.5
     absol.scaleY = 2.5
     absol.setBody({
         type: 'polygon',
         sides: 8,
-        radius: 50
+        radius: 70
     });
-    absol.setBounce(5)
-    ball = this.matter.add.sprite(200, 450, 'ball', 0);
+    absol.setBounce(1)
+    ball = this.matter.add.sprite(400, 450, 'ball', 0);
     ball.scaleX = 0.2
     ball.scaleY = 0.2
     ball.setBody({
@@ -260,7 +273,7 @@ function create() {
     });
     ball.setFrictionAir(0.1);
     ball.setMass(10);
-    ball.setBounce(0.8);
+    ball.setBounce(0.9);
     ball.worldBounce = 0
 
     walter = this.matter.add.sprite(300, 600, 'walter', 0);
@@ -273,13 +286,17 @@ function create() {
     });
     walter.setFrictionAir(0);
     walter.setMass(9000);
-    walter.setBounce(5);
+    walter.setBounce(2);
     walter.setVelocity(50, 50);
     walter.setFixedRotation();
     walter.setAngle(0);
     // walter.setVelocity(Math.min(5, Math.abs(absol.body.velocity.x)));
 
     // grassMap = this.matter.add.image(100, 450, 'grass-map', 0);
+
+    // Smoothly follow the player
+    this.cameras.main.startFollow(absol, false, 0.5, undefined);
+    this.cameras.main.setBounds(0, 0, 2000, 960)
 
 
     this.anims.create({
@@ -363,7 +380,7 @@ function create() {
     // absol.drag = 0.5
 
 
-    this.matter.world.setBounds(0, 0, 1200, 960);
+    this.matter.world.setBounds(0, 0, 2000, 960);
 
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -389,13 +406,31 @@ const setMaxVelocity = (subject, max) => {
     }
 }
 
+const limitBounceByVelocity = (subject, max) => {
+    if (subject.body.velocity.x < -max) {
+        subject.setBounce(0)
+    }
+    if (subject.body.velocity.x > max) {
+        subject.setBounce(0)
+    }
+    if (subject.body.velocity.y < -max) {
+        subject.setBounce(0)
+    }
+    if (subject.body.velocity.y > max) {
+        subject.setBounce(0)
+    }
+    else {
+        subject.setBounce(1)
+    }
+}
+
 
 const resetIfOutOfBounds = (body) => {
-        if (body.x < 0 || body.y < 0 || body.x > 1200 || body.y > 960) {
-            body.setVelocity(1)
-            body.x = 600
-            body.y = 480
-        }
+    if (body.x < 0 || body.y < 0 || body.x > 2000 || body.y > 960) {
+        body.setVelocity(1)
+        body.x = 600
+        body.y = 480
+    }
 }
 
 
@@ -403,11 +438,20 @@ const resetIfOutOfBounds = (body) => {
 
 
 function update() {
+    // limitBounceByVelocity(ball, 50)
     setMaxVelocity(walter, 20)
     // setMaxVelocity(ball, 60)
     // setMaxVelocity(absol, 60)
     resetIfOutOfBounds(ball)
     resetIfOutOfBounds(absol)
+
+    if (playerIsKicking) {
+        absol.setBounce(10)
+        console.log("kicking")
+    }
+    else if (!playerIsKicking) {
+        absol.setBounce(0)
+    }
 
     thrustValue = 0.5
 
